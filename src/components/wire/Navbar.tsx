@@ -1,335 +1,249 @@
-import { Link, NavLink } from "react-router-dom";
-import { Search, Globe, Menu, ChevronDown, X } from "lucide-react";
-import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Search, Menu, X, Share2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { PlaceholderImage } from "./Placeholder";
 
-type MegaColumn = {
+type Column = {
   heading: string;
   links: { label: string; to: string }[];
 };
 
-type MegaMenu = {
-  columns: MegaColumn[];
-  features?: { label: string; to: string; ratio?: string }[];
-};
+const bigLinks: { label: string; to: string }[] = [
+  { label: "KITCHENS", to: "/kitchens" },
+  { label: "LIVING", to: "/living" },
+  { label: "ACCESSORIES", to: "/accessories" },
+];
 
-const menus: Record<string, MegaMenu> = {
-  Kitchens: {
-    columns: [
-      {
-        heading: "By Style",
-        links: [
-          { label: "Modern", to: "/kitchens" },
-          { label: "Classic", to: "/kitchens" },
-          { label: "Transitional", to: "/kitchens" },
-          { label: "View All Models", to: "/kitchens" },
-        ],
-      },
-      {
-        heading: "By Material",
-        links: [
-          { label: "Matt", to: "/kitchens" },
-          { label: "Gloss", to: "/kitchens" },
-          { label: "Wood", to: "/kitchens" },
-          { label: "Glass", to: "/kitchens" },
-        ],
-      },
-      {
-        heading: "Tools",
-        links: [
-          { label: "Compare Models", to: "/kitchens" },
-          { label: "Configure Your Kitchen", to: "/kitchens" },
-          { label: "Request a Quote", to: "/contact" },
-          { label: "Find a Showroom", to: "/contact" },
-        ],
-      },
-    ],
-    features: [
-      { label: "Featured: Oyster Pro", to: "/kitchens/oyster-pro", ratio: "4:3" },
-      { label: "New: Tulip", to: "/kitchens/tulip", ratio: "4:3" },
+const columns: Column[] = [
+  {
+    heading: "DEALERS",
+    links: [
+      { label: "Italy", to: "/contact" },
+      { label: "International", to: "/contact" },
+      { label: "Dealer Initiatives", to: "/contact" },
     ],
   },
-  Living: {
-    columns: [
-      {
-        heading: "Systems",
-        links: [
-          { label: "Stepsystem", to: "/living" },
-          { label: "Tribeca", to: "/living" },
-          { label: "Groove", to: "/living" },
-          { label: "Gravity", to: "/living" },
-          { label: "Sunset", to: "/living" },
-        ],
-      },
-      {
-        heading: "By Function",
-        links: [
-          { label: "Wall Units", to: "/living" },
-          { label: "Bookcases", to: "/living" },
-          { label: "TV Systems", to: "/living" },
-          { label: "Sideboards", to: "/living" },
-        ],
-      },
-      {
-        heading: "Inspiration",
-        links: [
-          { label: "Integrated Living", to: "/living" },
-          { label: "Materials & Finishes", to: "/living" },
-          { label: "Book a Consultation", to: "/contact" },
-        ],
-      },
-    ],
-    features: [
-      { label: "Editorial: Stepsystem", to: "/living", ratio: "4:3" },
-      { label: "Lookbook: Gravity", to: "/living", ratio: "4:3" },
+  {
+    heading: "COMMUNICATION",
+    links: [
+      { label: "Magazine", to: "/magazine" },
+      { label: "News", to: "/magazine" },
+      { label: "Press Review", to: "/magazine" },
     ],
   },
-  Accessories: {
-    columns: [
-      {
-        heading: "Categories",
-        links: [
-          { label: "Chairs", to: "/accessories" },
-          { label: "Tables", to: "/accessories" },
-          { label: "Lighting", to: "/accessories" },
-          { label: "Internal Organisers", to: "/accessories" },
-          { label: "Decorative", to: "/accessories" },
-        ],
-      },
-      {
-        heading: "Pair With",
-        links: [
-          { label: "Kitchen Collections", to: "/kitchens" },
-          { label: "Living Systems", to: "/living" },
-          { label: "Complete the Look", to: "/accessories" },
-        ],
-      },
-    ],
-    features: [
-      { label: "Curated: Seating", to: "/accessories", ratio: "4:3" },
+  {
+    heading: "ABOUT",
+    links: [
+      { label: "Company", to: "/about" },
+      { label: "Awards & Recognition", to: "/about" },
+      { label: "Careers", to: "/about" },
+      { label: "Certifications", to: "/certifications" },
     ],
   },
-  Company: {
-    columns: [
-      {
-        heading: "About",
-        links: [
-          { label: "Our Story", to: "/about" },
-          { label: "Craftsmanship", to: "/about" },
-          { label: "Factory & Production", to: "/about" },
-          { label: "Leadership", to: "/about" },
-        ],
-      },
-      {
-        heading: "Quality",
-        links: [
-          { label: "Certifications", to: "/certifications" },
-          { label: "Materials", to: "/about" },
-          { label: "Made in Italy", to: "/certifications" },
-        ],
-      },
-      {
-        heading: "Editorial",
-        links: [
-          { label: "Magazine", to: "/magazine" },
-          { label: "Catalogs", to: "/catalogs" },
-        ],
-      },
-    ],
-    features: [
-      { label: "Brand Film", to: "/about", ratio: "16:9" },
+  {
+    heading: "CONTACT & SUPPORT",
+    links: [
+      { label: "Warranty", to: "/warranty" },
+      { label: "After-Sales Support", to: "/warranty" },
+      { label: "FAQ", to: "/warranty" },
+      { label: "Maintenance Tips", to: "/warranty" },
     ],
   },
-  Support: {
-    columns: [
-      {
-        heading: "After-Sales",
-        links: [
-          { label: "Warranty", to: "/warranty" },
-          { label: "Activate Warranty", to: "/warranty" },
-          { label: "Submit a Claim", to: "/warranty" },
-          { label: "Maintenance Tips", to: "/warranty" },
-        ],
-      },
-      {
-        heading: "Get in Touch",
-        links: [
-          { label: "Contact Us", to: "/contact" },
-          { label: "Find a Dealer", to: "/contact" },
-          { label: "Find a Showroom", to: "/contact" },
-          { label: "All Links", to: "/links" },
-        ],
-      },
-    ],
-    features: [
-      { label: "Showroom Locator", to: "/contact", ratio: "4:3" },
+  {
+    heading: "DOWNLOAD",
+    links: [
+      { label: "Catalogs", to: "/catalogs" },
+      { label: "Price Lists", to: "/catalogs" },
     ],
   },
-};
+  {
+    heading: "MORE",
+    links: [
+      { label: "Contact Us", to: "/contact" },
+      { label: "All Links", to: "/links" },
+    ],
+  },
+];
 
 const Navbar = () => {
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  // Lock body scroll when menu open
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   return (
-    <header
-      className="sticky top-0 z-50 bg-background border-b border-wire-border"
-      onMouseLeave={() => setOpenMenu(null)}
-    >
-      {/* Top utility bar */}
-      <div className="border-b border-wire-border">
-        <div className="container flex items-center justify-end h-8 gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
-          <span className="wire-label">UTILITY BAR</span>
-          <Link to="/contact" className="hover:underline">Find a Dealer</Link>
-          <Link to="/catalogs" className="hover:underline">Catalogs</Link>
-          <Link to="/magazine" className="hover:underline">Magazine</Link>
-          <button className="flex items-center gap-1 hover:underline">
-            <Globe className="w-3 h-3" /> EN
-          </button>
-        </div>
-      </div>
-
-      {/* Main bar */}
-      <nav className="container flex items-center justify-between h-16 gap-4">
-        <Link to="/" className="wire-box min-h-0 h-10 px-4" onMouseEnter={() => setOpenMenu(null)}>
-          <span className="font-medium text-xs">LOGO — Innov Möbel</span>
-        </Link>
-
-        <ul className="hidden lg:flex items-center gap-1 text-xs uppercase tracking-widest h-full">
-          {Object.keys(menus).map((key) => (
-            <li
-              key={key}
-              className="h-full flex items-center"
-              onMouseEnter={() => setOpenMenu(key)}
-            >
+    <>
+      {/* Top floating bar — transparent backdrop with centered pill */}
+      <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+        <div className="container relative h-20 flex items-center justify-between pointer-events-auto">
+          {/* Far left: SHARE (or CLOSE when open) */}
+          <div className="flex items-center text-[11px] uppercase tracking-widest">
+            {open ? (
               <button
-                className={`flex items-center gap-1 px-4 h-full hover:underline underline-offset-4 ${
-                  openMenu === key ? "underline" : ""
-                }`}
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 hover:underline"
               >
-                {key}
-                <ChevronDown className="w-3 h-3" />
+                <X className="w-4 h-4" /> Close
               </button>
-            </li>
-          ))}
-          <li className="h-full flex items-center" onMouseEnter={() => setOpenMenu(null)}>
-            <NavLink
-              to="/links"
-              className={({ isActive }) =>
-                `px-4 h-full flex items-center hover:underline underline-offset-4 ${
-                  isActive ? "underline" : ""
-                }`
-              }
-            >
-              Links
-            </NavLink>
-          </li>
-        </ul>
+            ) : (
+              <button className="hidden md:flex items-center gap-2 hover:underline">
+                <Share2 className="w-4 h-4" /> Share
+              </button>
+            )}
+          </div>
 
-        <div className="flex items-center gap-3">
-          <button className="wire-box min-h-0 h-8 w-8" aria-label="Search">
-            <Search className="w-4 h-4" />
-          </button>
-          <button className="wire-box min-h-0 h-8 w-8 hidden md:flex" aria-label="Language">
-            <Globe className="w-4 h-4" />
-          </button>
-          <button
-            className="wire-box min-h-0 h-8 w-8 lg:hidden"
-            aria-label="Menu"
-            onClick={() => setMobileOpen((v) => !v)}
+          {/* Centered pill navbar */}
+          <div
+            className={`absolute left-1/2 -translate-x-1/2 top-3 flex items-center gap-6 px-6 h-14 bg-background border border-wire-border rounded-full transition-all ${
+              open ? "shadow-none" : "shadow-sm"
+            }`}
+            style={{ minWidth: "min(640px, 80vw)" }}
           >
-            {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-          </button>
+            {/* Left: hamburger + search */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setOpen((v) => !v)}
+                aria-label="Menu"
+                className="wire-box min-h-0 h-9 w-9 rounded-full"
+              >
+                {open ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              </button>
+              <button
+                aria-label="Search"
+                className="wire-box min-h-0 h-9 w-9 rounded-full"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Center: logo */}
+            <Link
+              to="/"
+              onClick={() => setOpen(false)}
+              className="flex-1 flex items-center justify-center"
+            >
+              <span className="wire-box min-h-0 h-8 px-4 rounded-sm text-[11px] font-medium tracking-widest">
+                LOGO — INNOV MÖBEL
+              </span>
+            </Link>
+
+            {/* Right: featured link inside pill */}
+            <Link
+              to="/about"
+              className="hidden md:block text-[11px] uppercase tracking-widest hover:underline whitespace-nowrap"
+            >
+              Green Thinking
+            </Link>
+          </div>
+
+          {/* Far right: INFO */}
+          <div className="flex items-center text-[11px] uppercase tracking-widest">
+            <Link to="/contact" className="hidden md:block hover:underline">
+              Info
+            </Link>
+          </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Mega menu panel */}
-      {openMenu && menus[openMenu] && (
-        <div
-          className="hidden lg:block absolute left-0 right-0 top-full bg-background border-t border-b border-wire-border shadow-sm"
-          onMouseEnter={() => setOpenMenu(openMenu)}
-        >
-          <div className="container py-10">
-            <div className="wire-label mb-6">MEGA MENU — {openMenu.toUpperCase()}</div>
-            <div className="grid grid-cols-12 gap-8">
-              {/* Columns */}
-              <div className="col-span-7 grid grid-cols-3 gap-8">
-                {menus[openMenu].columns.map((col) => (
-                  <div key={col.heading}>
-                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3 pb-2 border-b border-wire-border">
-                      {col.heading}
-                    </div>
-                    <ul className="space-y-2 text-sm">
-                      {col.links.map((link) => (
-                        <li key={link.label}>
-                          <Link
-                            to={link.to}
-                            className="hover:underline underline-offset-4 block"
-                            onClick={() => setOpenMenu(null)}
-                          >
-                            {link.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+      {/* Spacer so content doesn't sit under fixed navbar */}
+      <div aria-hidden className="h-20" />
+
+      {/* Full-screen mega menu */}
+      {open && (
+        <div className="fixed inset-0 z-40 bg-background overflow-y-auto pt-24 pb-16">
+          <div className="container grid grid-cols-12 gap-10">
+            {/* LEFT — Big collection links */}
+            <div className="col-span-12 lg:col-span-5">
+              <div className="text-[11px] uppercase tracking-widest text-muted-foreground mb-6">
+                COLLECTIONS
+              </div>
+              <ul className="space-y-2">
+                {bigLinks.map((l) => (
+                  <li key={l.label}>
+                    <Link
+                      to={l.to}
+                      onClick={() => setOpen(false)}
+                      className="block text-5xl md:text-6xl font-light tracking-tight hover:underline underline-offset-8"
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Featured editorial card */}
+              <div className="mt-12 grid grid-cols-2 gap-4 max-w-lg border border-wire-border p-4">
+                <PlaceholderImage ratio="1:1" label="Editorial / Lifestyle" />
+                <div className="flex flex-col justify-center">
+                  <div className="text-[11px] uppercase tracking-widest text-muted-foreground mb-2">
+                    STORIES OF LIFE
                   </div>
-                ))}
-              </div>
-
-              {/* Featured visuals */}
-              <div className="col-span-5 grid grid-cols-2 gap-4">
-                {menus[openMenu].features?.map((f) => (
+                  <p className="text-sm leading-relaxed">
+                    Our stories of life are authentic, illustrated and written.
+                  </p>
                   <Link
-                    key={f.label}
-                    to={f.to}
-                    className="group block"
-                    onClick={() => setOpenMenu(null)}
+                    to="/magazine"
+                    onClick={() => setOpen(false)}
+                    className="mt-3 text-xs uppercase tracking-widest hover:underline self-start"
                   >
-                    <PlaceholderImage ratio={f.ratio || "4:3"} label={f.label} />
-                    <div className="text-xs uppercase tracking-widest mt-2 group-hover:underline">
-                      {f.label} →
-                    </div>
+                    Discover →
                   </Link>
-                ))}
+                </div>
               </div>
+            </div>
+
+            {/* RIGHT — Two-column grid of categorized links */}
+            <div className="col-span-12 lg:col-span-7 grid grid-cols-2 gap-x-10 gap-y-12">
+              {columns.map((col) => (
+                <div key={col.heading}>
+                  <div className="text-[11px] uppercase tracking-widest text-muted-foreground mb-4">
+                    {col.heading}
+                  </div>
+                  <ul className="space-y-3">
+                    {col.links.map((link) => (
+                      <li key={link.label}>
+                        <Link
+                          to={link.to}
+                          onClick={() => setOpen(false)}
+                          className="text-base hover:underline underline-offset-4"
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer of menu */}
+          <div className="container mt-16 pt-6 border-t border-wire-border flex flex-wrap items-center justify-between gap-4 text-[11px] uppercase tracking-widest text-muted-foreground">
+            <div className="flex gap-6">
+              <button className="hover:underline">EN</button>
+              <button className="hover:underline">IT</button>
+              <button className="hover:underline">DE</button>
+            </div>
+            <div className="flex gap-6">
+              <Link to="/links" onClick={() => setOpen(false)} className="hover:underline">
+                Instagram
+              </Link>
+              <Link to="/links" onClick={() => setOpen(false)} className="hover:underline">
+                YouTube
+              </Link>
+              <Link to="/links" onClick={() => setOpen(false)} className="hover:underline">
+                LinkedIn
+              </Link>
             </div>
           </div>
         </div>
       )}
-
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div className="lg:hidden border-t border-wire-border bg-background">
-          <div className="container py-6 space-y-6">
-            {Object.entries(menus).map(([key, menu]) => (
-              <div key={key}>
-                <div className="text-xs uppercase tracking-widest font-medium mb-2">{key}</div>
-                <ul className="space-y-1 pl-2">
-                  {menu.columns.flatMap((c) => c.links).map((link) => (
-                    <li key={link.label}>
-                      <Link
-                        to={link.to}
-                        className="text-sm hover:underline block py-1"
-                        onClick={() => setMobileOpen(false)}
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-            <Link
-              to="/links"
-              className="block text-xs uppercase tracking-widest font-medium"
-              onClick={() => setMobileOpen(false)}
-            >
-              Links
-            </Link>
-          </div>
-        </div>
-      )}
-    </header>
+    </>
   );
 };
 
